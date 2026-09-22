@@ -104,9 +104,12 @@
         <!-- Kotak Pengumuman Pemenang -->
         <div id="resultBox" class="hidden p-5 bg-slate-50 border-2 border-gold rounded-2xl text-center space-y-3 shadow-md">
           <p class="text-sm font-bold text-slate-700">🎉 Selamat! Anda Memenangkan:</p>
-          <div class="flex justify-center my-2">
+          
+          <!-- Gambar Hadiah (Hanya tampil jika ada gambar) -->
+          <div id="hadiahImgWrapper" class="hidden justify-center my-2">
             <img id="hadiahImg" src="" alt="Hadiah" class="w-24 h-24 object-contain rounded-2xl bg-white p-2.5 border border-slate-200 shadow-sm">
           </div>
+
           <p id="hadiahText" class="text-2xl font-black text-navy tracking-wide"></p>
           
           <div>
@@ -115,20 +118,13 @@
             </span>
           </div>
 
-          <!-- Tombol Salin Bukti & WA -->
-          <div class="pt-2 flex flex-col sm:flex-row gap-2 justify-center">
-            <button id="copyBtn" onclick="salinBuktiKlaim()" class="w-full sm:w-auto px-4 py-2.5 bg-white hover:bg-slate-100 text-navy font-bold text-xs rounded-xl border border-slate-300 shadow-sm transition flex items-center justify-center space-x-2 active:scale-95">
+          <!-- Tombol Salin Bukti -->
+          <div class="pt-2 flex justify-center">
+            <button id="copyBtn" onclick="salinBuktiKlaim()" class="px-5 py-2.5 bg-white hover:bg-slate-100 text-navy font-bold text-xs rounded-xl border border-slate-300 shadow-sm transition flex items-center justify-center space-x-2 active:scale-95">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-navy" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
               </svg>
               <span id="copyBtnText">Salin Teks Bukti</span>
-            </button>
-
-            <button onclick="kirimKeWhatsApp()" class="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center justify-center space-x-2 active:scale-95">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 fill-current" viewBox="0 0 24 24">
-                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
-              </svg>
-              <span>Kirim ke WhatsApp</span>
             </button>
           </div>
         </div>
@@ -151,27 +147,33 @@
     const colors = ['#021a48', '#07255f', '#021a48', '#07255f', '#021a48', '#07255f'];
 
     let prizeList = [];
+    let sliceAngles = []; // Rentang sudut [startAngle, endAngle] tiap hadiah
     let loadedImages = [];
     let isSpinning = false;
     let currentRotation = 0;
     let buktiKlaimTeks = '';
 
-    // Ambil list hadiah dinamis dari database
+    const TIER_WEIGHTS = {
+      'Utama': 1,   // Langka
+      'Sedang': 3,  // Sedang
+      'Biasa': 6    // Umum
+    };
+
     async function initPrizeList() {
       try {
         const res = await fetch('/api/hadiah');
         const json = await res.json();
+        
         if (json.success && json.data.length > 0) {
           prizeList = json.data;
         } else {
-          // Fallback default
           prizeList = [
-            { id: 1, nama: 'Kaos Kaosedhewe', gambar: '/kaos.png', fallback_icon: '👕' },
-            { id: 2, nama: 'Tote Bag Kanvas', gambar: '/totebag.png', fallback_icon: '👜' },
-            { id: 3, nama: 'Voucher 50%', gambar: '/voucher.png', fallback_icon: '🎟️' },
-            { id: 4, nama: 'Sticker Pack', gambar: '/sticker.png', fallback_icon: '🏷️' },
-            { id: 5, nama: 'Hoodie Kaos', gambar: '/hoodie.png', fallback_icon: '🧥' },
-            { id: 6, nama: 'Gantungan Kunci', gambar: '/gantungan.png', fallback_icon: '🔑' }
+            { id: 1, nama: 'Kaos Kaosedhewe', gambar: null, stok: 5, tier: 'Utama', bobot: 1 },
+            { id: 2, nama: 'Tote Bag Kanvas', gambar: null, stok: 10, tier: 'Sedang', bobot: 3 },
+            { id: 3, nama: 'Voucher 50%', gambar: null, stok: 15, tier: 'Sedang', bobot: 3 },
+            { id: 4, nama: 'Sticker Pack', gambar: null, stok: 50, tier: 'Biasa', bobot: 6 },
+            { id: 5, nama: 'Hoodie Kaos', gambar: null, stok: 2, tier: 'Utama', bobot: 1 },
+            { id: 6, nama: 'Gantungan Kunci', gambar: null, stok: 100, tier: 'Biasa', bobot: 6 }
           ];
         }
 
@@ -184,6 +186,11 @@
     function preloadImagesAndDraw() {
       loadedImages = [];
       let loadedCount = 0;
+
+      if (prizeList.length === 0) {
+        drawWheelEmpty();
+        return;
+      }
 
       prizeList.forEach((prize, idx) => {
         if (prize.gambar) {
@@ -209,46 +216,98 @@
       drawWheel();
     }
 
-    function drawWheel() {
-      const numSlices = prizeList.length;
-      if (numSlices === 0) return;
-
-      const arc = (2 * Math.PI) / numSlices;
+    function drawWheelEmpty() {
       ctx.clearRect(0, 0, 400, 400);
+      ctx.fillStyle = '#021a48';
+      ctx.beginPath();
+      ctx.arc(200, 200, 195, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.fillStyle = '#dccf95';
+      ctx.font = 'bold 16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Stok Hadiah Habis', 200, 205);
+    }
 
-      for (let i = 0; i < numSlices; i++) {
-        const angle = i * arc;
+    function drawWheel() {
+      if (prizeList.length === 0) {
+        drawWheelEmpty();
+        return;
+      }
 
-        // 1. Irisan Roda Navy
+      ctx.clearRect(0, 0, 400, 400);
+      sliceAngles = [];
+
+      const totalWeight = prizeList.reduce((sum, item) => {
+        const w = parseInt(item.bobot) || TIER_WEIGHTS[item.tier] || 1;
+        return sum + w;
+      }, 0);
+
+      let currentAngle = 0;
+
+      for (let i = 0; i < prizeList.length; i++) {
+        const item = prizeList[i];
+        const weight = parseInt(item.bobot) || TIER_WEIGHTS[item.tier] || 1;
+        
+        const sliceAngle = (weight / totalWeight) * (2 * Math.PI);
+        const startAngle = currentAngle;
+        const endAngle = currentAngle + sliceAngle;
+
+        sliceAngles.push({ startAngle, endAngle, centerAngle: startAngle + sliceAngle / 2 });
+
+        // 1. Gambar Irisan Roda
         ctx.beginPath();
         ctx.fillStyle = colors[i % colors.length];
         ctx.moveTo(200, 200);
-        ctx.arc(200, 200, 195, angle, angle + arc);
+        ctx.arc(200, 200, 195, startAngle, endAngle);
         ctx.fill();
         ctx.strokeStyle = '#dccf95';
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // 2. Teks Nama Hadiah & Ikon
+        // 2. Gambar Teks Nama Hadiah & Foto (Jika Ada)
         ctx.save();
         ctx.translate(200, 200);
-        ctx.rotate(angle + arc / 2);
+        ctx.rotate(startAngle + sliceAngle / 2);
 
         ctx.fillStyle = '#dccf95';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.textAlign = 'right';
-        ctx.fillText(prizeList[i].nama, 185, -5);
+        
+        // Penyesuaian Ukuran Font Bertingkat Sesuai Lebar Irisan
+        if (sliceAngle < 0.25) {
+          ctx.font = 'bold 8px sans-serif';
+        } else if (sliceAngle < 0.45) {
+          ctx.font = 'bold 10px sans-serif';
+        } else {
+          ctx.font = 'bold 12px sans-serif';
+        }
 
+        ctx.textAlign = 'right';
+
+        const textDisplay = `${item.nama} (${item.stok ?? 0})`;
+        
         const img = loadedImages[i];
         if (img) {
-          ctx.drawImage(img, 110, 5, 32, 32);
+          ctx.fillText(textDisplay, 185, -4);
+          ctx.drawImage(img, 125, 2, 22, 22);
         } else {
-          ctx.font = '20px sans-serif';
-          ctx.fillText(prizeList[i].fallback_icon || '🎁', 135, 22);
+          ctx.fillText(textDisplay, 185, 4);
         }
 
         ctx.restore();
+
+        currentAngle = endAngle;
       }
+    }
+
+    function pilihPemenangBerbobot() {
+      let poolIndex = [];
+      prizeList.forEach((prize, idx) => {
+        const weight = parseInt(prize.bobot) || TIER_WEIGHTS[prize.tier] || 1;
+        for (let w = 0; w < weight; w++) {
+          poolIndex.push(idx);
+        }
+      });
+      const rand = Math.floor(Math.random() * poolIndex.length);
+      return poolIndex[rand];
     }
 
     async function mulaiPutaran() {
@@ -271,7 +330,7 @@
 
       if (isSpinning) return;
       if (prizeList.length === 0) {
-        errorText.textContent = 'Daftar hadiah belum tersedia.';
+        errorText.textContent = 'Daftar hadiah belum tersedia atau stok sudah habis.';
         errorBox.classList.remove('hidden');
         return;
       }
@@ -302,11 +361,14 @@
       spinBtn.disabled = true;
       spinBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
-      const numSlices = prizeList.length;
-      const prizeIndex = Math.floor(Math.random() * numSlices);
-      const degreesPerSlice = 360 / numSlices;
-      const targetDeg = 270 - (prizeIndex * degreesPerSlice + degreesPerSlice / 2);
+      const prizeIndex = pilihPemenangBerbobot();
+      
+      const targetCenterAngleRad = sliceAngles[prizeIndex].centerAngle;
+      const targetCenterAngleDeg = (targetCenterAngleRad * 180) / Math.PI;
+
+      const targetDeg = 270 - targetCenterAngleDeg;
       const totalRounds = 360 * 6;
+      
       currentRotation += totalRounds + (targetDeg - (currentRotation % 360) + 360) % 360;
 
       canvas.style.transform = `rotate(${currentRotation}deg)`;
@@ -315,12 +377,17 @@
       setTimeout(async () => {
         const itemMenang = prizeList[prizeIndex];
         document.getElementById('hadiahText').textContent = itemMenang.nama;
-        
+
+        const imgWrapper = document.getElementById('hadiahImgWrapper');
         const imgElem = document.getElementById('hadiahImg');
+        
         if (itemMenang.gambar) {
           imgElem.src = itemMenang.gambar;
+          imgWrapper.classList.remove('hidden');
+          imgWrapper.classList.add('flex');
         } else {
-          imgElem.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="%23021a48" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>';
+          imgWrapper.classList.add('hidden');
+          imgWrapper.classList.remove('flex');
         }
 
         const waktuSekarang = new Date().toLocaleString('id-ID');
@@ -331,6 +398,7 @@
 • Nama Customer  : ${nama}
 • No. WhatsApp   : ${nohp}
 • Asal Kota      : ${kota}
+• Tingkatan      : ${itemMenang.tier || 'Utama'}
 • Hadiah Dimenangkan : *${itemMenang.nama}*
 • Waktu Klaim    : ${waktuSekarang}
 ---------------------------------------
@@ -338,6 +406,7 @@ Mohon konfirmasi penyerahan hadiah. Terima kasih!`;
 
         resultBox.classList.remove('hidden');
 
+        // Kirim konfirmasi klaim & kurangi stok di backend
         await fetch('/api/spinwheel/selesai', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -345,13 +414,16 @@ Mohon konfirmasi penyerahan hadiah. Terima kasih!`;
             id: trxId,
             nama_customer: nama,
             asal_kota: kota,
-            hadiah: itemMenang.nama
+            hadiah: itemMenang.nama,
+            hadiah_id: itemMenang.id
           })
         });
 
         isSpinning = false;
         spinBtn.disabled = false;
         spinBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+        initPrizeList();
       }, 4500);
     }
 
@@ -366,13 +438,6 @@ Mohon konfirmasi penyerahan hadiah. Terima kasih!`;
       }).catch(() => {
         alert('Gagal menyalin otomatis. Silakan screenshot layar ini sebagai bukti.');
       });
-    }
-
-    function kirimKeWhatsApp() {
-      if (!buktiKlaimTeks) return;
-      const nomorWaAdmin = "6281234567890";
-      const urlWa = `https://wa.me/${nomorWaAdmin}?text=${encodeURIComponent(buktiKlaimTeks)}`;
-      window.open(urlWa, '_blank');
     }
 
     initPrizeList();

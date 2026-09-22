@@ -29,7 +29,7 @@ pool.connect((err, client, release) => {
 });
 
 // ============================================================
-// 2. MIDDLEWARE & LIMIT PAYLOAD (Mendukung upload foto/gambar Base64)
+// 2. MIDDLEWARE & LIMIT PAYLOAD
 // ============================================================
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
@@ -42,7 +42,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      maxAge: 3600000 * 4,
+      maxAge: 3600000 * 4, // 4 jam
       httpOnly: true,
     },
   })
@@ -177,11 +177,23 @@ app.put('/api/admin/password', requireAuth, async (req, res) => {
 });
 
 // ============================================================
-// 5. MANAJEMEN LIST HADIAH SPINWHEEL (TAMBAH & HAPUS)
+// 5. MANAJEMEN LIST HADIAH SPINWHEEL (DENGAN TIKET, STOK & TIER)
 // ============================================================
 
-// Ambil list hadiah (Publik untuk dashboard & customer wheel)
+// Ambil list hadiah yang STOK > 0 (Untuk Spinwheel Customer)
 app.get('/api/hadiah', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM hadiah_spinwheel WHERE stok > 0 ORDER BY id ASC'
+    );
+    res.json({ success: true, data: result.rows });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Ambil SEMUA hadiah tanpa filter stok (Khusus Dashboard Admin)
+app.get('/api/admin/hadiah/all', requireAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM hadiah_spinwheel ORDER BY id ASC');
     res.json({ success: true, data: result.rows });
@@ -192,21 +204,24 @@ app.get('/api/hadiah', async (req, res) => {
 
 // Tambah Hadiah Baru oleh Admin
 app.post('/api/admin/hadiah', requireAuth, async (req, res) => {
-  const { nama, gambar, fallback_icon } = req.body;
+  const { nama, gambar, fallback_icon, stok, tier, bobot } = req.body;
   if (!nama || nama.trim() === '') {
     return res.status(400).json({ success: false, message: 'Nama hadiah wajib diisi!' });
   }
 
   try {
     const query = `
-      INSERT INTO hadiah_spinwheel (nama, gambar, fallback_icon)
-      VALUES ($1, $2, $3)
+      INSERT INTO hadiah_spinwheel (nama, gambar, fallback_icon, stok, tier, bobot)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *;
     `;
     const result = await pool.query(query, [
       nama.trim(),
       gambar || null,
-      fallback_icon || '🎁'
+      fallback_icon || '🎁',
+      stok !== undefined ? parseInt(stok, 10) : 10,
+      tier || 'Utama',
+      bobot !== undefined ? parseInt(bobot, 10) : 1
     ]);
     res.json({ success: true, message: 'Hadiah berhasil ditambahkan!', data: result.rows[0] });
   } catch (err) {
@@ -214,10 +229,54 @@ app.post('/api/admin/hadiah', requireAuth, async (req, res) => {
   }
 });
 
+// Handler fungsi Update Hadiah (Re-usable)
+const updateHadiahHandler = async (req, res) => {
+  const { id } = req.params;
+  const { nama, gambar, fallback_icon, stok, tier, bobot } = req.body;
+
+  if (!nama || nama.trim() === '') {
+    return res.status(400).json({ success: false, message: 'Nama hadiah tidak boleh kosong!' });
+  }
+
+  try {
+    const query = `
+      UPDATE hadiah_spinwheel 
+      SET nama = $1, 
+          gambar = $2, 
+          fallback_icon = $3, 
+          stok = $4, 
+          tier = $5, 
+          bobot = $6
+      WHERE id = $7
+      RETURNING *;
+    `;
+    const result = await pool.query(query, [
+      nama.trim(),
+      gambar || null,
+      fallback_icon || '🎁',
+      stok !== undefined ? parseInt(stok, 10) : 0,
+      tier || 'Utama',
+      bobot !== undefined ? parseInt(bobot, 10) : 1,
+      id
+    ]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Hadiah tidak ditemukan.' });
+    }
+
+    res.json({ success: true, message: 'Data hadiah berhasil diperbarui!', data: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Update Hadiah (Dibuat alias endpoint agar kompatibel dengan JS frontend)
+app.put('/api/admin/hadiah/:id', requireAuth, updateHadiahHandler);
+app.put('/api/hadiah/:id', requireAuth, updateHadiahHandler);
+
 // Hapus Hadiah oleh Admin
 app.delete('/api/admin/hadiah/:id', requireAuth, async (req, res) => {
   try {
-    // Pastikan tidak menghapus semua hadiah (minimal harus ada 2 hadiah di roda)
     const countRes = await pool.query('SELECT COUNT(*) FROM hadiah_spinwheel');
     if (parseInt(countRes.rows[0].count, 10) <= 2) {
       return res.status(400).json({ success: false, message: 'Roda putar membutuhkan minimal 2 hadiah!' });
@@ -309,12 +368,13 @@ app.post('/api/spinwheel/verifikasi', async (req, res) => {
 });
 
 app.post('/api/spinwheel/selesai', async (req, res) => {
-  const { id, nama_customer, asal_kota, hadiah } = req.body;
+  const { id, nama_customer, asal_kota, hadiah, hadiah_id } = req.body;
   if (!id || !nama_customer || !asal_kota || !hadiah) {
     return res.status(400).json({ success: false, message: 'Data formulir customer dan hadiah harus lengkap!' });
   }
 
   try {
+    // 1. Catat Pemenang pada Tiket Doorprize
     const query = `
       UPDATE doorprize_spinwheel 
       SET nama_customer = $1, 
@@ -335,10 +395,30 @@ app.post('/api/spinwheel/selesai', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Tiket tidak valid atau sudah pernah digunakan sebelumnya.' });
     }
 
+    // 2. OTOMATIS KURANGI STOK HADIAH (-1)
+    if (hadiah_id) {
+      await pool.query(
+        'UPDATE hadiah_spinwheel SET stok = GREATEST(0, stok - 1) WHERE id = $1',
+        [hadiah_id]
+      );
+    }
+
     res.json({ success: true, data: result.rows[0] });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
+});
+
+// ============================================================
+// 8. GLOBAL FALLBACK HANDLER (Diperbaiki untuk Express v5)
+// ============================================================
+app.use('/api/*splat', (req, res) => {
+  res.status(404).json({ success: false, message: 'Endpoint API tidak ditemukan!' });
+});
+
+app.use((err, req, res, next) => {
+  console.error('Server Internal Error:', err);
+  res.status(500).json({ success: false, message: 'Terjadi kesalahan pada server: ' + err.message });
 });
 
 app.listen(PORT, () => {

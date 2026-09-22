@@ -32,7 +32,7 @@
       <div class="relative">
         <button onclick="toggleProfileDropdown()" class="flex items-center space-x-2 bg-[#05296f] hover:bg-[#03276d] border border-[#dccf95]/40 rounded-full px-2 py-1 text-xs text-gold font-bold focus:outline-none transition">
           <div class="w-7 h-7 rounded-full bg-gold text-navy flex items-center justify-center font-black overflow-hidden border border-[#dccf95]">
-            <img id="navAvatarImg" src="" class="w-full h-full object-cover hidden">
+            <img id="navAvatarImg" src="" class="w-full h-full object-cover hidden" alt="Avatar">
             <span id="navAvatarText">A</span>
           </div>
           <span id="navUsername" class="pr-1">Admin</span>
@@ -74,52 +74,47 @@
 
   <div class="max-w-7xl mx-auto p-6 md:p-8 space-y-6">
     
-    <!-- GRID BARIS 1: DUA KARTU SEJAJAR TINGGI & HEADER (ITEMS-STRETCH) -->
+    <!-- GRID BARIS 1 -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
       
-      <!-- SISI KIRI: INPUT KESEMPATAN TIKET (7 Kolom) -->
-      <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between h-full">
+      <!-- SISI KIRI: INPUT TIKET -->
+      <div class="lg:col-span-4 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
         <div>
-          <div class="border-b border-slate-100 pb-2.5 mb-3 flex items-center justify-between min-h-[44px]">
-            <div>
-              <h2 class="text-base font-bold text-navy">Input Kesempatan Spinwheel</h2>
-              <p class="text-xs text-slate-500">Input kode transaksi belanja dan nomor HP customer.</p>
-            </div>
+          <div class="border-b border-slate-100 pb-3 mb-4">
+            <h2 class="text-base font-bold text-navy">Input Kesempatan Spinwheel</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Input kode transaksi dan nomor HP customer.</p>
           </div>
 
-          <form id="formTiket" class="space-y-3">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Kode Transaksi</label>
-                <input type="text" id="trxId" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono uppercase focus:ring-2 focus:ring-[#021a48] outline-none" placeholder="TRX-001" required>
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp / HP</label>
-                <input type="text" id="nohp" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-[#021a48] outline-none" placeholder="081234567890" required>
-              </div>
+          <form id="formTiket" class="space-y-3.5">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Kode Transaksi</label>
+              <input type="text" id="trxId" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono uppercase focus:ring-2 focus:ring-[#021a48] outline-none" placeholder="TRX-001" required>
             </div>
-            <button type="submit" class="w-full bg-navy hover:bg-[#03276d] text-gold font-bold py-2 rounded-lg text-xs tracking-wider uppercase transition shadow">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp / HP</label>
+              <input type="text" id="nohp" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-[#021a48] outline-none" placeholder="081234567890" required>
+            </div>
+            <button type="submit" id="btnSubmitTiket" class="w-full bg-navy hover:bg-[#03276d] text-gold font-bold py-2.5 rounded-lg text-xs tracking-wider uppercase transition shadow mt-1">
               + Tambahkan Data
             </button>
           </form>
         </div>
       </div>
 
-      <!-- SISI KANAN: KELOLA LIST HADIAH SPINWHEEL (5 Kolom) -->
-      <div class="lg:col-span-5 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between h-full">
+      <!-- SISI KANAN: KELOLA HADIAH -->
+      <div class="lg:col-span-8 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
         <div>
-          <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-3 min-h-[44px]">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
             <div>
               <h2 class="text-base font-bold text-navy">Kelola List Hadiah</h2>
-              <p class="text-xs text-slate-500">Item hadiah aktif di roda putar.</p>
+              <p class="text-xs text-slate-500 mt-0.5">Item hadiah aktif, stok, tier, dan bobot di roda putar.</p>
             </div>
-            <button onclick="openModal('addHadiahModal')" class="bg-gold hover-bg-gold text-navy text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition">
-              + Tambah
+            <button onclick="openModalTambahHadiah()" class="bg-gold hover-bg-gold text-navy text-xs font-bold px-3.5 py-2 rounded-lg shadow-sm transition">
+              + Tambah Hadiah
             </button>
           </div>
 
-          <!-- List Hadiah dengan scrollbar ramping -->
-          <div id="hadiahListContainer" class="space-y-1.5 max-h-[125px] overflow-y-auto pr-1">
+          <div id="hadiahListContainer" class="space-y-2 max-h-[190px] overflow-y-auto pr-1">
             <p class="text-xs text-slate-400 text-center py-4">Memuat daftar hadiah...</p>
           </div>
         </div>
@@ -171,7 +166,7 @@
   <div id="viewModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl border border-slate-200 text-center">
       <div class="w-20 h-20 rounded-full bg-navy text-gold font-black text-2xl mx-auto flex items-center justify-center border-2 border-gold shadow-md overflow-hidden">
-        <img id="modalAvatarImg" src="" class="w-full h-full object-cover hidden">
+        <img id="modalAvatarImg" src="" class="w-full h-full object-cover hidden" alt="Avatar Modal">
         <span id="modalAvatarText">A</span>
       </div>
       <h3 id="modalUsername" class="text-xl font-bold text-navy mt-4">Admin</h3>
@@ -198,7 +193,7 @@
       <form id="formEditProfile" class="space-y-4">
         <div class="flex flex-col items-center space-y-2">
           <div class="w-24 h-24 rounded-full border-2 border-dashed border-[#dccf95] overflow-hidden bg-slate-50 flex items-center justify-center relative shadow-inner">
-            <img id="previewFoto" src="" class="w-full h-full object-cover hidden">
+            <img id="previewFoto" src="" class="w-full h-full object-cover hidden" alt="Preview Profil">
             <span id="previewFallback" class="text-xs text-slate-400 font-semibold">Foto</span>
           </div>
           <label class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-navy font-bold text-xs px-3 py-1.5 rounded-lg border border-slate-200 transition shadow-sm">
@@ -252,34 +247,59 @@
     </div>
   </div>
 
-  <!-- MODAL 4: TAMBAH HADIAH BARU -->
+  <!-- MODAL 4: TAMBAH / EDIT HADIAH -->
   <div id="addHadiahModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl border border-slate-200">
-      <h3 class="text-lg font-bold text-navy">Tambah Hadiah Baru</h3>
-      <p class="text-xs text-slate-400 mt-0.5 mb-4">Item ini akan langsung muncul di roda putar pelanggan.</p>
+    <div class="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-slate-200">
+      <h3 id="modalHadiahTitle" class="text-lg font-bold text-navy">Tambah Hadiah Baru</h3>
+      <p class="text-xs text-slate-400 mt-0.5 mb-4">Atur detail hadiah, stok, tingkatan tier, dan peluang menang.</p>
 
       <form id="formTambahHadiah" class="space-y-3">
+        <input type="hidden" id="editHadiahId">
+
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Nama Hadiah</label>
           <input type="text" id="namaHadiahBaru" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-[#021a48] outline-none" placeholder="Contoh: Topi Kaosedhewe" required>
         </div>
 
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Jumlah (Stok)</label>
+            <input type="number" id="stokHadiah" min="0" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-[#021a48] outline-none" placeholder="10" required>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Tingkatan (Tier)</label>
+            <select id="tierHadiah" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-[#021a48] outline-none bg-white">
+              <option value="Utama">Utama (Langka)</option>
+              <option value="Sedang">Sedang</option>
+              <option value="Biasa">Biasa (Umum)</option>
+            </select>
+          </div>
+        </div>
+
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Icon / Emoji Alternatif</label>
-          <input type="text" id="fallbackIconBaru" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-[#021a48] outline-none" placeholder="Contoh: 🧢 atau 🎁" value="🎁">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Bobot Peluang (Weight)</label>
+          <input type="number" id="bobotHadiah" min="1" max="100" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-[#021a48] outline-none" placeholder="1" required>
+          <p class="text-[10px] text-slate-400 mt-0.5">Semakin tinggi nilainya, semakin sering hadiah keluar saat di-spin.</p>
         </div>
 
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Gambar Hadiah (Opsional)</label>
-          <div class="flex items-center space-x-3 mt-1">
-            <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-300 flex items-center justify-center overflow-hidden">
-              <img id="previewGambarHadiah" src="" class="w-full h-full object-contain hidden">
+          <div class="flex items-center space-x-2 mt-1">
+            <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-300 flex items-center justify-center overflow-hidden shrink-0">
+              <img id="previewGambarHadiah" src="" class="w-full h-full object-contain hidden" alt="Preview Hadiah">
               <span id="previewFallbackHadiah" class="text-lg">🎁</span>
             </div>
-            <label class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-navy font-semibold text-xs px-3 py-2 rounded-xl border border-slate-200">
+            <label class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-navy font-semibold text-xs px-3 py-2 rounded-xl border border-slate-200 transition">
               Pilih Gambar
               <input type="file" id="inputGambarHadiah" accept="image/*" class="hidden" onchange="handleHadiahImagePreview(event)">
             </label>
+            <!-- Tombol Hapus Gambar (Muncul saat gambar ada) -->
+            <button type="button" id="btnHapusGambarHadiah" onclick="hapusGambarHadiah()" class="hidden bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-xs px-3 py-2 rounded-xl border border-red-200 transition flex items-center space-x-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span>Hapus</span>
+            </button>
           </div>
         </div>
 
@@ -308,6 +328,12 @@
     window.addEventListener('click', (e) => {
       if (!e.target.closest('.relative')) {
         document.getElementById('profileDropdown').classList.add('hidden');
+      }
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        ['viewModal', 'editModal', 'passwordModal', 'addHadiahModal'].forEach(closeModal);
       }
     });
 
@@ -411,16 +437,26 @@
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
 
-          base64GambarHadiahBaru = canvas.toDataURL('image/png', 0.9);
+          base64GambarHadiahBaru = canvas.toDataURL('image/png');
 
           const preview = document.getElementById('previewGambarHadiah');
           preview.src = base64GambarHadiahBaru;
           preview.classList.remove('hidden');
           document.getElementById('previewFallbackHadiah').classList.add('hidden');
+          document.getElementById('btnHapusGambarHadiah').classList.remove('hidden');
         };
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
+    }
+
+    function hapusGambarHadiah() {
+      base64GambarHadiahBaru = null;
+      document.getElementById('inputGambarHadiah').value = '';
+      document.getElementById('previewGambarHadiah').src = '';
+      document.getElementById('previewGambarHadiah').classList.add('hidden');
+      document.getElementById('previewFallbackHadiah').classList.remove('hidden');
+      document.getElementById('btnHapusGambarHadiah').classList.add('hidden');
     }
 
     async function loadAdminProfile() {
@@ -458,7 +494,9 @@
             document.getElementById('modalAvatarText').classList.remove('hidden');
           }
         }
-      } catch (err) {}
+      } catch (err) {
+        console.error('Gagal memuat profil admin:', err);
+      }
     }
 
     document.getElementById('formEditProfile').addEventListener('submit', async (e) => {
@@ -485,6 +523,11 @@
           alert('Sesi login telah berakhir. Silakan login kembali.');
           window.location.href = '/login.html';
           return;
+        }
+
+        const contentType = res.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          throw new Error(`Respon non-JSON dari server (Status: ${res.status})`);
         }
 
         const data = await res.json();
@@ -515,6 +558,13 @@
             password_baru: document.getElementById('pwBaru').value
           })
         });
+
+        if (res.status === 401) {
+          alert('Sesi login telah berakhir. Silakan login kembali.');
+          window.location.href = '/login.html';
+          return;
+        }
+
         const data = await res.json();
         if (data.success) {
           alert(data.message);
@@ -530,35 +580,89 @@
 
     async function loadHadiah() {
       try {
-        const res = await fetch('/api/hadiah');
+        const res = await fetch('/api/admin/hadiah/all');
+        
+        if (res.status === 401) {
+          window.location.href = '/login.html';
+          return;
+        }
+
         const json = await res.json();
         const container = document.getElementById('hadiahListContainer');
         container.innerHTML = '';
 
-        if (!json.success || json.data.length === 0) {
+        if (!json.success || !json.data || json.data.length === 0) {
           container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Belum ada hadiah terdaftar.</p>';
           return;
         }
 
         json.data.forEach(item => {
+          let badgeTier = 'bg-slate-100 text-slate-700';
+          if (item.tier === 'Utama') badgeTier = 'bg-amber-100 text-amber-800 border-amber-300';
+          if (item.tier === 'Sedang') badgeTier = 'bg-blue-100 text-blue-800 border-blue-300';
+          if (item.tier === 'Biasa') badgeTier = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+
           const div = document.createElement('div');
           div.className = 'flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-200 text-xs hover:bg-slate-100 transition';
           div.innerHTML = `
             <div class="flex items-center space-x-2.5">
-              <div class="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center overflow-hidden">
-                ${item.gambar ? `<img src="${item.gambar}" class="w-full h-full object-contain">` : `<span class="text-sm">${item.fallback_icon || '🎁'}</span>`}
+              <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
+                ${item.gambar ? `<img src="${item.gambar}" class="w-full h-full object-contain" alt="Hadiah">` : `<span class="text-base">${item.fallback_icon || '🎁'}</span>`}
               </div>
-              <span class="font-bold text-navy">${item.nama}</span>
+              <div>
+                <div class="font-bold text-navy flex items-center space-x-1.5">
+                  <span>${item.nama}</span>
+                  <span class="text-[9px] px-1.5 py-0.2 rounded border font-extrabold ${badgeTier}">${item.tier || 'Utama'}</span>
+                </div>
+                <div class="text-[10px] text-slate-500 font-mono">
+                  Stok: <b class="${item.stok > 0 ? 'text-slate-800' : 'text-red-600'}">${item.stok ?? 0}</b> | Bobot: <b>${item.bobot ?? 1}</b>
+                </div>
+              </div>
             </div>
-            <button onclick="hapusHadiah(${item.id}, '${item.nama}')" class="text-red-500 hover:text-red-700 font-semibold px-2 py-1">
-              Hapus
-            </button>
+            <div class="flex items-center space-x-1">
+              <button onclick='editHadiahModal(${JSON.stringify(item)})' class="text-amber-600 hover:text-amber-800 font-bold px-2 py-1">
+                Edit
+              </button>
+              <button onclick="hapusHadiah(${item.id}, '${item.nama}')" class="text-red-500 hover:text-red-700 font-semibold px-2 py-1">
+                Hapus
+              </button>
+            </div>
           `;
           container.appendChild(div);
         });
       } catch (err) {
-        console.error(err);
+        console.error('Gagal memuat hadiah:', err);
       }
+    }
+
+    function openModalTambahHadiah() {
+      document.getElementById('editHadiahId').value = '';
+      document.getElementById('formTambahHadiah').reset();
+      document.getElementById('modalHadiahTitle').textContent = 'Tambah Hadiah Baru';
+      hapusGambarHadiah();
+      openModal('addHadiahModal');
+    }
+
+    function editHadiahModal(item) {
+      document.getElementById('editHadiahId').value = item.id;
+      document.getElementById('namaHadiahBaru').value = item.nama;
+      document.getElementById('stokHadiah').value = item.stok ?? 0;
+      document.getElementById('tierHadiah').value = item.tier || 'Utama';
+      document.getElementById('bobotHadiah').value = item.bobot || 1;
+      document.getElementById('modalHadiahTitle').textContent = 'Edit Data Hadiah';
+      
+      base64GambarHadiahBaru = item.gambar || null;
+      if (item.gambar) {
+        const preview = document.getElementById('previewGambarHadiah');
+        preview.src = item.gambar;
+        preview.classList.remove('hidden');
+        document.getElementById('previewFallbackHadiah').classList.add('hidden');
+        document.getElementById('btnHapusGambarHadiah').classList.remove('hidden');
+      } else {
+        hapusGambarHadiah();
+      }
+
+      openModal('addHadiahModal');
     }
 
     document.getElementById('formTambahHadiah').addEventListener('submit', async (e) => {
@@ -567,33 +671,49 @@
       btn.disabled = true;
       btn.textContent = 'Menyimpan...';
 
+      const id = document.getElementById('editHadiahId').value;
       const payload = {
         nama: document.getElementById('namaHadiahBaru').value.trim(),
-        fallback_icon: document.getElementById('fallbackIconBaru').value.trim() || '🎁',
+        stok: parseInt(document.getElementById('stokHadiah').value) || 0,
+        tier: document.getElementById('tierHadiah').value,
+        bobot: parseInt(document.getElementById('bobotHadiah').value) || 1,
         gambar: base64GambarHadiahBaru
       };
 
+      const url = id ? `/api/admin/hadiah/${id}` : '/api/admin/hadiah';
+      const method = id ? 'PUT' : 'POST';
+
       try {
-        const res = await fetch('/api/admin/hadiah', {
-          method: 'POST',
+        const res = await fetch(url, {
+          method: method,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
+
+        if (res.status === 401) {
+          alert('Sesi login telah berakhir. Silakan login kembali.');
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const contentType = res.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          throw new Error(`Server mengembalikan respon non-JSON (Status HTTP: ${res.status}).`);
+        }
+
         const data = await res.json();
 
         if (data.success) {
           alert(data.message);
           closeModal('addHadiahModal');
           document.getElementById('formTambahHadiah').reset();
-          base64GambarHadiahBaru = null;
-          document.getElementById('previewGambarHadiah').classList.add('hidden');
-          document.getElementById('previewFallbackHadiah').classList.remove('hidden');
+          hapusGambarHadiah();
           loadHadiah();
         } else {
-          alert(data.message || 'Gagal menambahkan hadiah.');
+          alert(data.message || 'Gagal menyimpan hadiah.');
         }
       } catch (err) {
-        alert('Terjadi kesalahan saat menambah hadiah: ' + err.message);
+        alert('Terjadi kesalahan saat menyimpan hadiah: ' + err.message);
       } finally {
         btn.disabled = false;
         btn.textContent = 'Simpan Hadiah';
@@ -604,6 +724,13 @@
       if (!confirm(`Hapus hadiah "${nama}" dari spinwheel?`)) return;
       try {
         const res = await fetch(`/api/admin/hadiah/${id}`, { method: 'DELETE' });
+        
+        if (res.status === 401) {
+          alert('Sesi login telah berakhir.');
+          window.location.href = '/login.html';
+          return;
+        }
+
         const data = await res.json();
         if (data.success) {
           loadHadiah();
@@ -668,46 +795,87 @@
 
     document.getElementById('formTiket').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const btn = document.getElementById('btnSubmitTiket');
+      btn.disabled = true;
+      btn.textContent = 'Menambahkan...';
+
       const payload = {
-        id: document.getElementById('trxId').value,
-        nomor_hp: document.getElementById('nohp').value
+        id: document.getElementById('trxId').value.trim(),
+        nomor_hp: document.getElementById('nohp').value.trim()
       };
 
-      const res = await fetch('/api/admin/tiket', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
+      try {
+        const res = await fetch('/api/admin/tiket', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
 
-      if (data.success) {
-        alert('Tiket transaksi berhasil didaftarkan!');
-        document.getElementById('formTiket').reset();
-        loadData();
-      } else {
-        alert(data.message || 'Gagal mendaftarkan tiket!');
+        if (res.status === 401) {
+          alert('Sesi login telah berakhir.');
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const data = await res.json();
+
+        if (data.success) {
+          alert('Tiket transaksi berhasil didaftarkan!');
+          document.getElementById('formTiket').reset();
+          await loadData();
+        } else {
+          alert(data.message || 'Gagal mendaftarkan tiket!');
+        }
+      } catch (err) {
+        alert('Terjadi kesalahan koneksi server.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '+ TAMBAHKAN DATA';
       }
     });
 
     async function hapus(id) {
       if (!confirm(`Hapus tiket transaksi ${id}?`)) return;
-      await fetch(`/api/admin/doorprize/${id}`, { method: 'DELETE' });
-      loadData();
+      try {
+        const res = await fetch(`/api/admin/doorprize/${id}`, { method: 'DELETE' });
+        
+        if (res.status === 401) {
+          alert('Sesi login telah berakhir.');
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const data = await res.json();
+        if (data.success) {
+          loadData();
+        } else {
+          alert(data.message || 'Gagal menghapus tiket.');
+        }
+      } catch (err) {
+        alert('Gagal menghapus tiket.');
+      }
     }
 
     function exportToCSV() {
       if (!currentWinnersData.length) return alert('Tidak ada data!');
+
+      const cleanCSV = (str) => {
+        if (str === null || str === undefined) return '""';
+        return `"${String(str).replace(/"/g, '""')}"`;
+      };
+
       const headers = ['Kode Transaksi', 'No WhatsApp', 'Nama Customer', 'Asal Kota', 'Status Spin', 'Hadiah', 'Jumlah', 'Waktu'];
       const rows = currentWinnersData.map(i => [
-        `"${i.id}"`,
-        `"${i.nomor_hp}"`,
-        `"${i.nama_customer || ''}"`,
-        `"${i.asal_kota || ''}"`,
-        `"${(i.status_spin || 'BELUM SPIN').toUpperCase()}"`,
-        `"${i.hadiah || ''}"`,
+        cleanCSV(i.id),
+        cleanCSV(i.nomor_hp),
+        cleanCSV(i.nama_customer || ''),
+        cleanCSV(i.asal_kota || ''),
+        cleanCSV((i.status_spin || 'BELUM SPIN').toUpperCase()),
+        cleanCSV(i.hadiah || ''),
         (i.status_spin || '').toLowerCase() === 'sudah spin' ? (i.kuantitas || 1) : 0,
-        `"${new Date(i.created_at).toLocaleString('id-ID')}"`
+        cleanCSV(new Date(i.created_at).toLocaleString('id-ID'))
       ]);
+
       const blob = new Blob(['\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n')], { type: 'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -716,8 +884,13 @@
     }
 
     async function logout() {
-      await fetch('/api/logout', { method: 'POST' });
-      window.location.href = '/login.html';
+      try {
+        await fetch('/api/logout', { method: 'POST' });
+      } catch (e) {
+        console.error('Logout error:', e);
+      } finally {
+        window.location.href = '/login.html';
+      }
     }
 
     loadAdminProfile();
