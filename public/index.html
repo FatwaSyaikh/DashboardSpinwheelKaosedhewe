@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';">
   <title>Customer Spinwheel Doorprize - Kaosedhewe</title>
   <link rel="icon" type="image/png" href="/logo.png">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -21,7 +22,7 @@
 <body class="bg-navy-dark min-h-screen flex flex-col items-center justify-center p-4 md:p-8 font-sans select-none text-slate-800">
 
   <!-- Tombol Fullscreen -->
-  <button onclick="toggleFullScreen()" class="fixed top-5 right-5 z-50 bg-[#021a48] hover:bg-[#042970] text-[#dccf95] border border-[#dccf95]/50 p-3 rounded-2xl shadow-xl transition active:scale-95" title="Layar Penuh">
+  <button onclick="toggleFullScreen()" class="fixed top-5 right-5 z-40 bg-[#021a48] hover:bg-[#042970] text-[#dccf95] border border-[#dccf95]/50 p-3 rounded-2xl shadow-xl transition active:scale-95" title="Layar Penuh">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
     </svg>
@@ -100,34 +101,42 @@
           </svg>
           <span id="errorText"></span>
         </div>
+      </div>
 
-        <!-- Kotak Pengumuman Pemenang -->
-        <div id="resultBox" class="hidden p-5 bg-slate-50 border-2 border-gold rounded-2xl text-center space-y-3 shadow-md">
-          <p class="text-sm font-bold text-slate-700">🎉 Selamat! Anda Memenangkan:</p>
-          
-          <!-- Gambar Hadiah (Hanya tampil jika ada gambar) -->
-          <div id="hadiahImgWrapper" class="hidden justify-center my-2">
-            <img id="hadiahImg" src="" alt="Hadiah" class="w-24 h-24 object-contain rounded-2xl bg-white p-2.5 border border-slate-200 shadow-sm">
-          </div>
+    </div>
+  </div>
 
-          <p id="hadiahText" class="text-2xl font-black text-navy tracking-wide"></p>
-          
-          <div>
-            <span class="inline-block text-xs bg-emerald-100 text-emerald-800 font-extrabold px-4 py-1 rounded-full border border-emerald-300">
-              Tunjukkan layar / bukti ini ke kasir Kaosedhewe
-            </span>
-          </div>
+  <!-- POP-UP MODAL PEMENANG (BACKDROP BLUR) -->
+  <div id="resultModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-white border-4 border-gold rounded-3xl p-6 sm:p-8 max-w-md w-full text-center space-y-4 shadow-2xl animate-in zoom-in-95 duration-200">
+      
+      <p class="text-sm font-extrabold text-slate-600 uppercase tracking-widest">🎉 Selamat! Anda Memenangkan:</p>
+      
+      <!-- Gambar Hadiah -->
+      <div id="hadiahImgWrapper" class="hidden justify-center my-3">
+        <img id="hadiahImg" src="" alt="Hadiah" class="w-32 h-32 object-contain rounded-2xl bg-slate-50 p-3 border-2 border-slate-200 shadow-md">
+      </div>
 
-          <!-- Tombol Salin Bukti -->
-          <div class="pt-2 flex justify-center">
-            <button id="copyBtn" onclick="salinBuktiKlaim()" class="px-5 py-2.5 bg-white hover:bg-slate-100 text-navy font-bold text-xs rounded-xl border border-slate-300 shadow-sm transition flex items-center justify-center space-x-2 active:scale-95">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-navy" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-              </svg>
-              <span id="copyBtnText">Salin Teks Bukti</span>
-            </button>
-          </div>
-        </div>
+      <p id="hadiahText" class="text-3xl font-black text-navy tracking-wide"></p>
+      
+      <div>
+        <span class="inline-block text-xs bg-emerald-100 text-emerald-800 font-extrabold px-4 py-1.5 rounded-full border border-emerald-300">
+          Tunjukkan layar / bukti ini ke kasir Kaosedhewe
+        </span>
+      </div>
+
+      <!-- Tombol Aksi dalam Pop-up -->
+      <div class="pt-3 flex flex-col sm:flex-row gap-2.5 justify-center">
+        <button id="copyBtn" onclick="salinBuktiKlaim()" class="w-full sm:w-auto px-5 py-3 bg-white hover:bg-slate-100 text-navy font-bold text-xs rounded-xl border border-slate-300 shadow-sm transition flex items-center justify-center space-x-2 active:scale-95">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-navy" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+          </svg>
+          <span id="copyBtnText">Salin Teks Bukti</span>
+        </button>
+
+        <button onclick="tutupResultModal()" class="w-full sm:w-auto px-6 py-3 bg-navy-main hover-bg-navy text-gold font-black text-xs rounded-xl shadow transition active:scale-95 border border-gold">
+          Tutup & Selesai
+        </button>
       </div>
 
     </div>
@@ -148,7 +157,6 @@
 
     let prizeList = [];
     let sliceAngles = []; // Rentang sudut [startAngle, endAngle] tiap hadiah
-    let loadedImages = [];
     let isSpinning = false;
     let currentRotation = 0;
     let buktiKlaimTeks = '';
@@ -177,43 +185,10 @@
           ];
         }
 
-        preloadImagesAndDraw();
+        drawWheel();
       } catch (err) {
         console.error('Gagal mengambil data hadiah:', err);
       }
-    }
-
-    function preloadImagesAndDraw() {
-      loadedImages = [];
-      let loadedCount = 0;
-
-      if (prizeList.length === 0) {
-        drawWheelEmpty();
-        return;
-      }
-
-      prizeList.forEach((prize, idx) => {
-        if (prize.gambar) {
-          const img = new Image();
-          img.src = prize.gambar;
-          img.onload = () => {
-            loadedImages[idx] = img;
-            loadedCount++;
-            if (loadedCount === prizeList.length) drawWheel();
-          };
-          img.onerror = () => {
-            loadedImages[idx] = null;
-            loadedCount++;
-            if (loadedCount === prizeList.length) drawWheel();
-          };
-        } else {
-          loadedImages[idx] = null;
-          loadedCount++;
-          if (loadedCount === prizeList.length) drawWheel();
-        }
-      });
-
-      drawWheel();
     }
 
     function drawWheelEmpty() {
@@ -228,6 +203,7 @@
       ctx.fillText('Stok Hadiah Habis', 200, 205);
     }
 
+    // Menggambar Roda Spinwheel (Auto-Fit Presisi Posisi & Ukuran)
     function drawWheel() {
       if (prizeList.length === 0) {
         drawWheelEmpty();
@@ -264,33 +240,36 @@
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // 2. Gambar Teks Nama Hadiah & Foto (Jika Ada)
+        // 2. Gambar Teks Nama Hadiah & Stok
         ctx.save();
         ctx.translate(200, 200);
         ctx.rotate(startAngle + sliceAngle / 2);
 
         ctx.fillStyle = '#dccf95';
         
-        // Penyesuaian Ukuran Font Bertingkat Sesuai Lebar Irisan
-        if (sliceAngle < 0.25) {
-          ctx.font = 'bold 8px sans-serif';
-        } else if (sliceAngle < 0.45) {
-          ctx.font = 'bold 10px sans-serif';
-        } else {
-          ctx.font = 'bold 12px sans-serif';
+        const textDisplay = `${item.nama} (${item.stok ?? 0})`;
+        
+        // Jari-jari penulisan teks otomatis beradaptasi dengan sudut irisan (35px - 175px)
+        const textRadius = Math.max(85, Math.min(175, 185 * (sliceAngle / (Math.PI / 3))));
+        const maxTextLength = textRadius - 40; 
+
+        // Hitung batas lebar irisan persis di lokasi penulisan teks
+        const maxSliceWidthAtRadius = (textRadius * 0.65) * sliceAngle;
+
+        // Mulai dari font besar (26px)
+        let fontSize = 26; 
+        ctx.font = `bold ${fontSize}px sans-serif`;
+        
+        // Pengecekan 2 arah yang presisi:
+        // 1. Panjang teks tidak melampaui maxTextLength
+        // 2. Tinggi font (fontSize * 0.9) tidak melampaui lebar irisan pada jari-jari tersebut
+        while ((ctx.measureText(textDisplay).width > maxTextLength || (fontSize * 0.9) > maxSliceWidthAtRadius) && fontSize > 6) {
+          fontSize--;
+          ctx.font = `bold ${fontSize}px sans-serif`;
         }
 
         ctx.textAlign = 'right';
-
-        const textDisplay = `${item.nama} (${item.stok ?? 0})`;
-        
-        const img = loadedImages[i];
-        if (img) {
-          ctx.fillText(textDisplay, 185, -4);
-          ctx.drawImage(img, 125, 2, 22, 22);
-        } else {
-          ctx.fillText(textDisplay, 185, 4);
-        }
+        ctx.fillText(textDisplay, textRadius, fontSize / 3.5);
 
         ctx.restore();
 
@@ -317,10 +296,8 @@
       const kota = document.getElementById('kota').value.trim();
       const errorBox = document.getElementById('errorBox');
       const errorText = document.getElementById('errorText');
-      const resultBox = document.getElementById('resultBox');
 
       errorBox.classList.add('hidden');
-      resultBox.classList.add('hidden');
 
       if (!trxId || !nohp || !nama || !kota) {
         errorText.textContent = 'Harap lengkapi kode transaksi, WhatsApp, nama, dan kota terlebih dahulu!';
@@ -373,7 +350,7 @@
 
       canvas.style.transform = `rotate(${currentRotation}deg)`;
 
-      // 3. Tampilkan Pemenang
+      // 3. Tampilkan Pemenang dalam Pop-up Modal
       setTimeout(async () => {
         const itemMenang = prizeList[prizeIndex];
         document.getElementById('hadiahText').textContent = itemMenang.nama;
@@ -404,7 +381,8 @@
 ---------------------------------------
 Mohon konfirmasi penyerahan hadiah. Terima kasih!`;
 
-        resultBox.classList.remove('hidden');
+        // Buka Pop-up Pemenang
+        document.getElementById('resultModal').classList.remove('hidden');
 
         // Kirim konfirmasi klaim & kurangi stok di backend
         await fetch('/api/spinwheel/selesai', {
@@ -425,6 +403,10 @@ Mohon konfirmasi penyerahan hadiah. Terima kasih!`;
 
         initPrizeList();
       }, 4500);
+    }
+
+    function tutupResultModal() {
+      document.getElementById('resultModal').classList.add('hidden');
     }
 
     function salinBuktiKlaim() {
